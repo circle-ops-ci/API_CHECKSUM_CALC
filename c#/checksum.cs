@@ -17,7 +17,7 @@ namespace c__checksum
 {
     class Program
     {
-        static string BuildCheckSum(List<string> ps, string secret, long time, string r)
+        static string BuildChecksum(List<string> ps, string secret, long time, string r)
         {
             ps.Add(String.Format("t={0}", time));
             ps.Add(String.Format("r={0}", r));
@@ -42,6 +42,16 @@ namespace c__checksum
             return builder.ToString();
         }
 
+        static string CalculateCallbackCheckSum(string payload, string secret)
+        {
+            using (SHA256 hash = SHA256.Create())
+            {
+                byte[] result = hash.ComputeHash(Encoding.UTF8.GetBytes(payload+secret));
+                return System.Convert.ToBase64String(result)
+                    .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+            }
+        }
+
         static void Example1()
         {
             // calculate the checksum for /v1/sofa/wallets/689664/notifications?from_time=1561651200&to_time=1562255999&type=2
@@ -50,7 +60,7 @@ namespace c__checksum
             List<string> ps = new List<string>(new string[] { "from_time=1561651200", "to_time=1562255999", "type=2" });
 
             long curTime = DateTimeOffset.Now.ToUnixTimeSeconds();
-            string checksum = BuildCheckSum(ps, "THIS_IS_A_SECRET", curTime, "THIS_IS_A_RANDOM_STRING");
+            string checksum = BuildChecksum(ps, "THIS_IS_A_SECRET", curTime, "THIS_IS_A_RANDOM_STRING");
 
             Console.WriteLine(checksum);
         }
@@ -64,15 +74,26 @@ namespace c__checksum
             List<string> ps = new List<string>(new string[] { "{\"block_num\":1}" });
 
             long curTime = DateTimeOffset.Now.ToUnixTimeSeconds();
-            string checksum = BuildCheckSum(ps, "THIS_IS_A_SECRET", curTime, "THIS_IS_A_RANDOM_STRING");
+            string checksum = BuildChecksum(ps, "THIS_IS_A_SECRET", curTime, "THIS_IS_A_RANDOM_STRING");
 
             Console.WriteLine(checksum);
         }
 
+        static void CallbackChecksumExample()
+        {
+            // calculate the checksum for callback notification
+            string payload = "{\"merchant_id\":1164830639,\"order_id\":\"N1164830639_0000001023\",\"currency\":\"ETH\",\"txid\":\"0xd4cd1899713de17214b417890ee50835915469bd3d8cae9464f50a59dfa69f2e\",\"recv_amount\":\"1000000000000000000\",\"broadcast_at\":1618199781,\"block_height\":10020669,\"from_address\":\"0x4d5DCF7e1FA43770082910107573C8fF4AD0866c\",\"to_address\":\"0x8F8B9C746c51C89Fbe83221930eC6e89C3A18918\",\"state\":0,\"addon\":{},\"currency_bip44\":60,\"token_address\":\"\",\"decimal\":18,\"fee\":\"1428000000000000\",\"fee_decimal\":18}";
+
+            string checksum = CalculateCallbackCheckSum(payload, "23qZHkPaG24QrK6bDW9sXbEL7JkB");
+
+            Console.WriteLine(checksum);
+        }
+        
         static void Main(string[] args)
         {
             Example1();
             Example2();
+            CallbackChecksumExample();
         }
     }
 }
