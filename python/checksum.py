@@ -24,10 +24,17 @@ def build_checksum(params, secret, ts, r):
 def calculate_callback_checksum(payload, secret):
     h = sha256()
     h.update((payload + secret).encode('utf-8'))
-    return base64.urlsafe_b64encode(h.digest())
+    return base64.urlsafe_b64encode(h.digest()).decode('utf-8')
 
-def example1():
-    # calculate the checksum for /v1/sofa/wallets/689664/notifications?from_time=1561651200&to_time=1562255999&type=2
+def example_GET_request_checksum():
+    # calculate the checksum for API [GET] /v1/sofa/wallets/689664/notifications
+    #   query:
+    #     from_time=1561651200
+    #     to_time=1562255999
+    #     type=2
+    #   body: none
+    #
+    # final API URL should be /v1/sofa/wallets/689664/notifications?from_time=1561651200&to_time=1562255999&type=2&t=1629346605&r=RANDOM_STRING
 
     # ps contains all query strings and post body if any
     params = []
@@ -35,34 +42,37 @@ def example1():
     params.append('to_time=1562255999')
     params.append('type=2')
 
-    curTime = int(time())
-    checksum = build_checksum(params, 'THIS_IS_A_SECRET', curTime, 'THIS_IS_A_RANDOM_STRING')
+    curTime = 1629346605 # replace with current time, ex: int(time())
+    checksum = build_checksum(params, 'API_SECRET', curTime, 'RANDOM_STRING')
     print(checksum)
 
-def example2():
-    # calculate the checksum for /v1/sofa/wallets/689664/autofee
-    # post body: {"block_num":1}
+def example_POST_request_checksum():
+    # calculate the checksum for API [POST] /v1/sofa/wallets/689664/autofee
+    #   query: none
+    #   body: {"block_num":1}
+    #
+    # final API URL should be /v1/sofa/wallets/689664/autofee?t=1629346575&r=RANDOM_STRING
 
     # ps contains all query strings and post body if any
     params = []
     params.append('{"block_num":1}')
 
-    curTime = int(time())
-    checksum = build_checksum(params, 'THIS_IS_A_SECRET', curTime, 'THIS_IS_A_RANDOM_STRING')
+    curTime = 1629346575 # replace with current time, ex: int(time())
+    checksum = build_checksum(params, 'API_SECRET', curTime, 'RANDOM_STRING')
     print(checksum)
 
-def callbackChecksumExample():
+def example_CALLBACK_checksum():
     # calculate the checksum for callback notification
 
-    payload = '{"type":3,"serial":90000002382,"order_id":"","currency":"TRX","txid":"9784a194f1ed6680108b9ec4f60f93c891d856b0aa01f78daa237d6e746b454a","block_height":15030279,"tindex":0,"vout_index":0,"amount":"5000000","fees":"0","memo":"","broadcast_at":1621416359,"chain_at":1621416375,"from_address":"TFHN66QLPMPqJdzTNTFTt88WpKSVj1C2bW","to_address":"TC3e9gYQfXwfD7kQt37aBncuZrui428Nmx","wallet_id":515837,"state":3,"confirm_blocks":12,"processing_state":2,"addon":{"address_label":"","fee_decimal":6},"decimal":6,"currency_bip44":195,"token_address":""}';
+    payload = '{"type":2,"serial":20000000632,"order_id":"1_2_M1031","currency":"ETH","txid":"","block_height":0,"tindex":0,"vout_index":0,"amount":"10000000000000000","fees":"","memo":"","broadcast_at":0,"chain_at":0,"from_address":"","to_address":"0x8382Cc1B05649AfBe179e341179fa869C2A9862b","wallet_id":2,"state":1,"confirm_blocks":0,"processing_state":0,"addon":{"fee_decimal":18},"decimal":18,"currency_bip44":60,"token_address":""}';
 
-    checksum = calculate_callback_checksum(payload, 'THIS_IS_A_SECRET');
+    checksum = calculate_callback_checksum(payload, 'API_SECRET');
     print(checksum)
 
 def main():
-    example1()
-    example2()
-    callbackChecksumExample()
+    example_GET_request_checksum()
+    example_POST_request_checksum()
+    example_CALLBACK_checksum()
 
 if __name__ == "__main__":
     main()
