@@ -331,7 +331,82 @@ kbd {
 <h1 id="toc_0">Overview</h1>
 
 <ul>
-<li>The repository provides how to calculate the API checksum for the <a href="https://github.com/CYBAVO/SOFA_MOCK_SERVER">CYBAVO SOFA System</a>.</li>
+<li>The repository provides how to calculate the API checksum and verify callback integrity for the <a href="https://github.com/CYBAVO/SOFA_MOCK_SERVER">CYBAVO SOFA System</a>.</li>
+</ul>
+
+<h1 id="toc_1">API Authentication</h1>
+
+<ul>
+<li>The CYBAVO SOFA system verifies all incoming requests. All requests must include X-API-CODE, X-CHECKSUM headers otherwise caller will get a 403 Forbidden error.</li>
+</ul>
+
+<h3 id="toc_2">How to acquire and refresh API code and secret</h3>
+
+<ul>
+<li>Request the API code/secret from the <strong>Wallet Details</strong> page on the web control panel for the first time.</li>
+</ul>
+
+<h3 id="toc_3">How to make a correct request?</h3>
+
+<ul>
+<li>Put the API code in the X-API-CODE header.</li>
+<li>Calculate the checksum with the corresponding API secret and put the checksum in the X-CHECKSUM header.
+
+<ul>
+<li>The checksum calculation will use all the query parameters, the current timestamp, user-defined random string and the post body (if any).</li>
+</ul></li>
+<li><p>The final request must conform following conditions:</p>
+
+<ul>
+<li>Required Headers:
+
+<ul>
+<li>X-API-CODE: API-CODE</li>
+<li>X-CHECKSUM: CHECKSUM</li>
+<li>Content-Type: application/json</li>
+<li>User-Agent: USER-AGENT</li>
+</ul></li>
+<li>API URL:
+
+<ul>
+<li>https://SOFA-SERVICE-URL/v1/sofa/wallets/CALLING-API-PATH?QUERY-PARAMS&amp;t=REQUEST-TIME&amp;r=RANDOM-STRING
+
+<ul>
+<li>where <code>t</code> and <code>r</code> are required</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><p>Refer to the code snippets to know how to calculate the checksum for API.</p>
+
+<ul>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/go/checksum.go#L40">Go</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/java/checksum.java#L49">Java</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/javascript/checksum.js#L27">Javascript</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/php/checksum.php#L27">PHP</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/c%23/checksum.cs#L55">C#</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/python/checksum.py#L29">Python</a></li>
+</ul></li>
+</ul>
+
+<h1 id="toc_4">Callback Integrity Verification</h1>
+
+<ul>
+<li><p>For callback integrity verification</p>
+
+<ul>
+<li>Step 1: Calculate the checksum of the combination of callback payload and API secret.</li>
+<li>Setp 2: Compare with the X-CHECKSUM header.</li>
+</ul></li>
+<li><p>Refer to the code snippets to know how to calculate the checksum of the callback.</p>
+
+<ul>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/go/checksum.go#L75">Go</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/java/checksum.java#L90">Java</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/javascript/checksum.js#L62">Javascript</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/php/checksum.php#L62">PHP</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/c%23/checksum.cs#L89">C#</a></li>
+<li><a href="https://github.com/CYBAVO/API_CHECKSUM_CALC/blob/main/python/checksum.py#L64">Python</a></li>
+</ul></li>
 </ul>
 
 
