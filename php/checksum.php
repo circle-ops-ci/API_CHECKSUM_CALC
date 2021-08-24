@@ -38,7 +38,7 @@ function example_GET_request_checksum() {
     $params = ['from_time=1561651200', 'to_time=1562255999', 'type=2'];
 
     $curTime = 1629346605; // replace with current time, ex: time()
-    $checksum = build_request_checksum($params, "THIS_IS_A_SECRET", $curTime, "THIS_IS_A_RANDOM_STRING");
+    $checksum = build_request_checksum($params, "API_SECRET", $curTime, "RANDOM_STRING");
 
     file_put_contents('php://stdout', $checksum."\n");
 }
@@ -54,7 +54,7 @@ function example_POST_request_checksum() {
     $params = ['{"block_num":1}'];
 
     $curTime = 1629346575; // replace with current time, ex: time()
-    $checksum = build_request_checksum($params, "THIS_IS_A_SECRET", $curTime, "THIS_IS_A_RANDOM_STRING");
+    $checksum = build_request_checksum($params, "API_SECRET", $curTime, "RANDOM_STRING");
 
     file_put_contents('php://stdout', $checksum."\n");
 }
